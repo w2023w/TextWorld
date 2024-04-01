@@ -2,6 +2,9 @@
 
 import os, time, math
 
+os.system('')
+
+
 class Window:
 	"""文字图形界面模块"""
 	def __init__(self, width, height):
@@ -19,11 +22,12 @@ class Window:
     样式：
         背景：{self.base_symbol}
         边型：{self.sides_symbol}
+    描述：这是一个完全由文本字符构成的UI界面。
 		"""
 	def init_render(self): 
 		"""初始化"""
 		self.add({'type': 'floor', 'id': '00', 'z': 0, 'symbol': '·'})
-		self.add({'type': 'reack', 'id': '01', 'x':0, 'y': 0, 'z': 0, 'width': self.width, 'height': self.height, 'fill': False, 'symbol': {'top': "—", 'right': '丨', 'bottom': '—', 'left': '丨', 'fill':'一'}})
+		self.add({'type': 'reck', 'id': '01', 'x':0, 'y': 0, 'z': 0, 'width': self.width, 'height': self.height, 'fill': False, 'symbol': {'top': "—", 'right': '丨', 'bottom': '—', 'left': '丨', 'fill':'一'}})
 
 		self.render()
 
@@ -43,7 +47,7 @@ class Window:
 				self.prerender_set.append([])
 		self.prerender_set[z_index].append(obj)
 
-	def clear(self, oid, mod = 1):
+	def destroy(self, oid, mod = 1):
 		"""清除指定对象或图层"""
 		if mod == 0:
 			i = int(oid)
@@ -52,10 +56,12 @@ class Window:
 			self.prerender_set[i] = []
 			self.show()
 		elif mod == 1:
-			i, j = list(oid)
+			i = oid[0]
 			i = int(i)
-			j = int(j)
-			self.prerender_set[i].pop(j)
+			for j in range(len(self.prerender_set[i])):
+				if oid == self.prerender_set[i][j]['id']:
+					self.prerender_set[i].pop(j)
+					break
 			self.show()
 
 
@@ -65,7 +71,7 @@ class Window:
 			line =  symbol * self.width
 			self.rendered.append(line)
 
-	def render_reack(self, x, y, width, height, borders, fill=False): 
+	def render_reck(self, x, y, width, height, borders, fill=False): 
 		"""渲染矩形"""
 		if x < 0:
 			x = 0
@@ -148,8 +154,8 @@ class Window:
 				match p['type']:
 					case 'floor':
 						self.render_floor(p['symbol'])
-					case 'reack':
-						self.render_reack(p['x'], p['y'], p['width'], p['height'], p['symbol'], p['fill'])
+					case 'reck':
+						self.render_reck(p['x'], p['y'], p['width'], p['height'], p['symbol'], p['fill'])
 					case 'point':
 						self.render_point(p['x'], p['y'], p['symbol'])
 					case 'line':
@@ -158,9 +164,13 @@ class Window:
 
 	def show(self): 
 		"""展示渲染结果"""
-		os.system('cls')
+		self.goback()
 		for line in self.rendered:
 			print('\t' + line)
+
+	def goback(self):
+		'''回退到起点'''
+		print(f'\033[{self.height}A', end='')
 
 
 if __name__ == "__main__":
@@ -168,7 +178,7 @@ if __name__ == "__main__":
 	height = 30
 	window = Window(width, height)
 
-	window.add({'type': 'reack', 'id': '10', 'x':12, 'y': 10, 'z': 1, 'width': 25, 'height': 15, 'fill': True, 'symbol': {'top': "墙", 'right': '墙', 'bottom': '墙', 'left': '墙', 'fill': '艹'}})
+	window.add({'type': 'reck', 'id': '10', 'x':12, 'y': 10, 'z': 1, 'width': 25, 'height': 15, 'fill': True, 'symbol': {'top': "墙", 'right': '墙', 'bottom': '墙', 'left': '墙', 'fill': '艹'}})
 	time.sleep(1)
 	window.render()
 	window.add({'type': 'line', 'id': '11', 'x':5, 'y': 5, 'z': 1, 'l': 20, 'k': None, 'symbol': '纵'})
@@ -180,10 +190,10 @@ if __name__ == "__main__":
 	window.add({'type': 'line', 'id': '12', 'x':5, 'y': 5, 'z': 1, 'l': 30, 'k': 1, 'symbol': '线'})
 	time.sleep(1)
 	window.render()
-	window.add({'type': 'point', 'id': '14', 'x':19, 'y': 14, 'z': 1, 'symbol': '我'})
+	window.add({'type': 'point', 'id': '13', 'x':19, 'y': 14, 'z': 1, 'symbol': '我'})
 	time.sleep(1)
 	window.render()
-	window.clear('10')
+	window.destroy('10')
 	time.sleep(1)
 	window.render()
 	
@@ -195,8 +205,10 @@ if __name__ == "__main__":
 		rad = (2*math.pi/s)*t + 0*math.pi
 		x = math.cos(rad) * r
 		y = math.sin(rad) * r
-		window.add({'type': 'point', 'id': f'{13+t}', 'x': x0+int(x), 'y': y0+int(y), 'z': 1, 'symbol': '〇'})
+		window.add({'type': 'point', 'id': f'1{4+t}', 'x': x0+int(x), 'y': y0+int(y), 'z': 1, 'symbol': '〇'})
 		window.render()
+		time.sleep(1)
+		window.destroy(f'1{4+t}')
 	os.system('pause')
 		
 		
